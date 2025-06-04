@@ -49,7 +49,21 @@ export const WalletConnection = ({
 						description: "Wallet connected successfully",
 					});
 					localStorage.setItem("walletAddress", address);
-					console.log("Wallet address:", address);
+
+					// Get balance
+					(window as any).ethereum
+						.request({
+							method: "eth_getBalance",
+							params: [address, "latest"],
+						})
+						.then((balanceHex: string) => {
+							// Convert hex balance to decimal (ETH)
+							const balance = parseInt(balanceHex, 16) / 1e18;
+							localStorage.setItem("walletBalance", balance.toString());
+						})
+						.catch(() => {
+							localStorage.setItem("walletBalance", "null");
+						});
 					// Optionally fetch and store balance here
 				})
 				.catch(() => {
@@ -94,7 +108,7 @@ export const WalletConnection = ({
 				<div className="bg-white rounded-lg px-4 py-2 border">
 					<div className="text-sm text-gray-600">Balance</div>
 					<div className="font-semibold">
-						{localStorage.getItem("walletBalance") || "0"} LSK
+						{localStorage.getItem("walletBalance") || "null"} LSK
 					</div>
 				</div>
 				<div className="bg-white rounded-lg px-4 py-2 border flex items-center gap-2">
